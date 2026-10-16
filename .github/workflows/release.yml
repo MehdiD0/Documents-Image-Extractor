@@ -70,7 +70,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           pyinstaller --windowed --name="Documents-Image-Extractor" --icon=assets/icon.icns --add-data "assets:assets" main.py
-          cd dist
+          cd dist 
           zip -r ${{ matrix.artifact_name }} Documents-Image-Extractor.app
 
       - name: Upload Release Asset
