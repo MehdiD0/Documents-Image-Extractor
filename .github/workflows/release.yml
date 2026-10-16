@@ -1,0 +1,84 @@
+name: Build and Release Multi-Platform Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: Documents-Image-Extractor-Windows.exe
+            asset_path: dist/Documents-Image-Extractor.exe
+          - os: ubuntu-latest
+            artifact_name: Documents-Image-Extractor-Linux
+            asset_path: dist/Documents-Image-Extractor
+          - os: macos-latest
+            artifact_name: Documents-Image-Extractor-macOS.zip
+            asset_path: dist/Documents-Image-Extractor-macOS.zip
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-glx libegl1 libxkbcommon-x11-0 libdbus-1-3
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build Windows binary
+        if: runner.os == 'Windows'
+        run: |
+          pyinstaller --noconsole --onefile --icon=assets/icon.ico --name="Documents-Image-Extractor" --add-data "assets;assets" main.py
+
+      - name: Build Linux binary
+        if: runner.os == 'Linux'
+        run: |
+          pyinstaller --noconsole --onefile --name="Documents-Image-Extractor" --add-data "assets:assets" main.py
+
+      - name: Build macOS binary
+        if: runner.os == 'macOS'
+        run: |
+          pyinstaller --windowed --name="Documents-Image-Extractor" --icon=assets/icon.png --add-data "assets:assets" main.py
+          cd dist
+          zip -r Documents-Image-Extractor-macOS.zip Documents-Image-Extractor.app
+
+      - name: Rename & prepare artifact
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            cp dist/Documents-Image-Extractor.exe dist/${{ matrix.artifact_name }}
+          elif [ "${{ runner.os }}" = "Linux" ]; then
+            cp dist/Documents-Image-Extractor dist/${{ matrix.artifact_name }}
+          fi
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: dist/${{ matrix.artifact_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
