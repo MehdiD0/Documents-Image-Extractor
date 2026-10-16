@@ -16,6 +16,10 @@
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License" />
 </p>
 
+<p align="center">
+  <img src="assets/Screenshot.png" alt="Documents Image-Extractor UI Preview" width="820" />
+</p>
+
 ---
 
 ## ✨ Features
@@ -36,7 +40,7 @@
 
 For Windows users who just want to use the application:
 
-1. Go to the [**Releases**](https://github.com/YOUR_USERNAME/Documents-Image-Extractor/releases) section.
+1. Go to the [**Releases**](https://github.com/MehdiD0/Documents-Image-Extractor/releases) section.
 2. Download the latest `Documents-Image-Extractor.exe`.
 3. Double-click the `.exe` to launch and start extracting images!
 
@@ -52,7 +56,7 @@ If you'd like to run or modify the source code:
 
 ### 2. Clone the Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/Documents-Image-Extractor.git
+git clone https://github.com/MehdiD0/Documents-Image-Extractor.git
 cd Documents-Image-Extractor
 ```
 
